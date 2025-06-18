@@ -2,15 +2,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebas
 import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js"
 
 // Firebase config from Firebase Console
-const firebaseConfig = {
-  apiKey: "AIzaSyB1f_e8lo7eT156I9gNaApEjl40PHpRFFs",
-  authDomain: "kudosdelight-c3a7c.firebaseapp.com",
-  databaseURL: "https://kudosdelight-c3a7c-default-rtdb.firebaseio.com",
-  projectId: "kudosdelight-c3a7c",
-  storageBucket: "kudosdelight-c3a7c.appspot.com",
-  messagingSenderId: "4769790839",
-  appId: "1:4769790839:web:5f0eb44512e205c6573f72"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyB1f_e8lo7eT156I9gNaApEjl40PHpRFFs",
+    authDomain: "kudosdelight-c3a7c.firebaseapp.com",
+    databaseURL: "https://kudosdelight-c3a7c-default-rtdb.firebaseio.com",
+    projectId: "kudosdelight-c3a7c",
+    storageBucket: "kudosdelight-c3a7c.firebasestorage.app",
+    messagingSenderId: "4769790839",
+    appId: "1:4769790839:web:611140d32a633320573f72"
+  };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -51,3 +51,42 @@ complimentForm.addEventListener('submit', (e) => {
       });
   }
 });
+
+// Load all compliments from the database and store locally
+let complimentsList = [];
+
+// Fetch compliments from Firebase
+function loadCompliments() {
+  get(complimentsRef)
+    .then((snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        // Convert object to array of compliment strings
+        complimentsList = Object.values(data).map(item => item.text);
+      } else {
+        complimentsList = [];
+      }
+    })
+    .catch((error) => {
+      console.error('Error fetching compliments:', error);
+    });
+}
+
+// Call this once on page load
+loadCompliments();
+
+// When Generate button is clicked
+generateButton.addEventListener('click', () => {
+  if (complimentsList.length === 0) {
+    complimentDisplay.textContent = "No compliments found. Add one!";
+    return;
+  }
+
+  // Pick a random compliment
+  const randomIndex = Math.floor(Math.random() * complimentsList.length);
+  const randomCompliment = complimentsList[randomIndex];
+
+  // Display the compliment
+  complimentDisplay.textContent = randomCompliment;
+});
+
