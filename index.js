@@ -1,53 +1,53 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js"
 import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-database.js"
 
-// Your web app's Firebase configuration - GET COMPLETE CONFIG FROM FIREBASE CONSOLE
+// Firebase config from Firebase Console
 const firebaseConfig = {
   apiKey: "AIzaSyB1f_e8lo7eT156I9gNaApEjl40PHpRFFs",
   authDomain: "kudosdelight-c3a7c.firebaseapp.com",
   databaseURL: "https://kudosdelight-c3a7c-default-rtdb.firebaseio.com",
   projectId: "kudosdelight-c3a7c",
-  storageBucket: "kudosdelight-c3a7c.firebasestorage.app",
+  storageBucket: "kudosdelight-c3a7c.appspot.com",
   messagingSenderId: "4769790839",
   appId: "1:4769790839:web:5f0eb44512e205c6573f72"
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 const complimentsRef = ref(database, "compliments");
 
-// Select page elements
+// Select DOM elements
 const generateButton = document.getElementById('generateButton');
 const complimentDisplay = document.getElementById('compliment-display');
 const complimentForm = document.getElementById('complimentForm');
 const complimentInput = document.getElementById('complimentInput');
+const toggleFormButton = document.getElementById('toggleFormButton');
+const successMessage = document.getElementById('successMessage');
 
-// Function to show/hide the submission form
+// Toggle visibility of the form
 toggleFormButton.addEventListener('click', () => {
   complimentForm.classList.toggle('hidden');
-  complimentForm.classList.contains('hidden') ? toggleFormButton.textContent = 'Add Kudos' : toggleFormButton.textContent = 'Hide Form';
+  toggleFormButton.textContent = complimentForm.classList.contains('hidden') ? 'Add Kudos' : 'Hide Form';
 });
 
-/** Challenge: Submit kudos 
-  - Use the provided prompt to program the form to add compliments to the database.
-**/
-
-// Function to handle form submission
+// Handle form submission
 complimentForm.addEventListener('submit', (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
+  e.preventDefault();
+  const newCompliment = complimentInput.value.trim();
 
-    const newCompliment = complimentInput.value.trim(); // Get the value from the input field and trim any leading/trailing whitespace
-
-    if (newCompliment !== '') {
-        // Check if the input is not empty
-        push(complimentsRef, newCompliment) // Push the new compliment to the Firebase database
-            .then(() => {
-                complimentInput.value = ''; // Clear the input field
-                complimentForm.classList.add('hidden'); // Hide the form after submission
-                toggleFormButton.textContent = 'Add Kudos'; // Update the button text
-            })
-            .catch((error) => {
-                console.error('Error adding compliment:', error);
-            });
-    }
+  if (newCompliment !== '') {
+    // ✅ Push an object, not a raw string
+    push(complimentsRef, { text: newCompliment })
+      .then(() => {
+        complimentInput.value = '';
+        complimentForm.classList.add('hidden');
+        toggleFormButton.textContent = 'Add Kudos';
+        successMessage.style.display = 'block'; // Show success message
+        setTimeout(() => successMessage.style.display = 'none', 3000); // Hide it after 3s
+      })
+      .catch((error) => {
+        console.error('Error adding compliment:', error);
+      });
+  }
 });
